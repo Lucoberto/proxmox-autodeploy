@@ -1,19 +1,32 @@
 #!/bin/bash
 
+# Scraping CSV para crear maquiena virtual
+
 main(){
 clear
 echo "   Auto deploy VM    "
 echo " [1] Auto deploy     "
 echo " [2] Manual deploy   "
-
+echo " [3] Via CSV deploy  "
 read selection
 
-case $selection in
-        1)
-                generateID;;
-        2)
-                manualDeploy;;
-esac
+# Convertir en IF ELSE
+
+if [ "$selection" = "1" ]; then
+        generateID
+
+elif [ "$selection" = "2" ]; then
+        manualDeploy
+
+elif [ "$selection" = "3" ]; then
+        csvDeploy
+
+else
+
+        echo "!!!Write one number please!!!"
+        main
+
+fi
 
 }
 
@@ -38,6 +51,15 @@ generateID(){
         else
                 generateID
         fi
+}
+csvDeploy(){
+        echo "Write the name of the CSV"
+        read csvName
+# con sed remplazamos un texto por otro. en este caso \(.*) el "." es cualquier caracter y "*" es cualquier tipo de logitud.
+# los "()" son para agruparlos con "\" defines un caracter especial para que no lo interprete como un caracter normal.
+# "/" es donde termina. La " \ " despues de iso indica indica que la siguiente "/" es una barra normal 
+                createVM=$(sed 's/\(.*\),\(.*\),\(.*\),\(.*\),\(.*\)/qm create \1 --name \2 --memory \3 --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci -cdrom local:iso\/\5 --scsi0 local-lvm:\4/g' $csvName | tail -n +2)
+                bash -c "$creatVM"
 }
 
 
